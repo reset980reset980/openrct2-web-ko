@@ -70,7 +70,7 @@ namespace OpenRCT2::Platform
     uint16_t GetLocaleLanguage()
     {
         auto locale = reinterpret_cast<char*>(EM_ASM_PTR({
-            const locale = Intl.DateTimeFormat().resolvedOptions().locale;
+            const locale = "ko-KR";
             return stringToNewUTF8(locale);
         }));
         auto languageId = LanguageGetIDFromLocale(locale);
@@ -105,6 +105,10 @@ namespace OpenRCT2::Platform
     #ifndef DISABLE_TTF
     std::string GetFontPath(const TTFFontDescriptor& font)
     {
+        if (std::string(font.filename) == "NanumGothic.ttf")
+        {
+            return "/OpenRCT2/fonts/NanumGothic.ttf";
+        }
         return {};
     }
     #endif

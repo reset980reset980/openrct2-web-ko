@@ -16,7 +16,6 @@ emcmake cmake ../ \
 	-DDISABLE_NETWORK=ON \
 	-DDISABLE_OPENGL=ON \
 	-DDISABLE_HTTP=ON \
-	-DDISABLE_TTF=ON \
 	-DDISABLE_FLAC=ON \
 	-DDISABLE_DISCORD_RPC=ON \
 	-DCMAKE_SYSTEM_NAME=Emscripten \
@@ -26,9 +25,9 @@ emcmake cmake ../ \
 	-DICU_DT_LIBRARY_RELEASE="$ICU_ROOT/stubdata/libicudata.so" \
 	-DLIBZIP_LIBRARIES="$LIBZIP_ROOT/build/lib/libzip.a" \
 	-DZSTD_LIBRARIES="$ZSTD_ROOT/build/build/lib/libzstd.a" \
-	-DEMSCRIPTEN_FLAGS="-s USE_SDL=2 -s USE_ZLIB=1 -s USE_BZIP2=1 -s USE_LIBPNG=1 -pthread -O3" \
+	-DEMSCRIPTEN_FLAGS="-s USE_SDL=2 -s USE_ZLIB=1 -s USE_BZIP2=1 -s USE_LIBPNG=1 -s USE_FREETYPE=1 -pthread -O3" \
 	-DEMSCRIPTEN_EXPORTED_FUNCTIONS="_GetVersion,_main" \
-	-DEMSCRIPTEN_LDFLAGS="-Wno-pthreads-mem-growth -s SAFE_HEAP=0 -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -s INITIAL_MEMORY=2GB -s STACK_SIZE=8388608 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -s PTHREAD_POOL_SIZE=120 -pthread -s EXPORTED_RUNTIME_METHODS=ccall,FS,callMain,UTF8ToString,stringToNewUTF8 -lidbfs.js --use-preload-plugins -s MODULARIZE=1 -s 'EXPORT_NAME=\"OPENRCT2_WEB\"' -Wl,--export-if-defined=LoadGameCallback"
+	-DEMSCRIPTEN_LDFLAGS="-Wno-pthreads-mem-growth -s USE_FREETYPE=1 -s SAFE_HEAP=0 -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=4GB -s INITIAL_MEMORY=512MB -s STACK_SIZE=8388608 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -s PTHREAD_POOL_SIZE=120 -pthread -s EXPORTED_RUNTIME_METHODS=ccall,FS,callMain,UTF8ToString,stringToNewUTF8 -lidbfs.js --use-preload-plugins -s MODULARIZE=1 -s 'EXPORT_NAME=\"OPENRCT2_WEB\"' -Wl,--export-if-defined=LoadGameCallback"
 
 emmake ninja
 
@@ -38,3 +37,10 @@ cd www/
 cp -r ../openrct2.* ./
 cp -r ../../emscripten/static/* ./
 zip -r openrct2.zip ../openrct2.*
+
+if [ -n "${OPENRCT2_PORTABLE_ARCHIVE:-}" ]; then
+	OPENRCT2_PORTABLE_ARCHIVE=$(realpath "$OPENRCT2_PORTABLE_ARCHIVE")
+	python3 ../../scripts/prepare-web-assets.py --archive "$OPENRCT2_PORTABLE_ARCHIVE" --output build/www/assets.zip
+else
+	python3 ../../scripts/prepare-web-assets.py --output build/www/assets.zip
+fi

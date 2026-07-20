@@ -33,7 +33,7 @@ var EmscriptenDeps = {
                         id: "OpenRCT2-" + type,
                         types: [
                             {
-                                description: isTrackDesign ? "Track Design File" : "Park File",
+                                description: isTrackDesign ? "트랙 디자인 파일" : "공원 세이브 파일",
                                 accept: {
                                     "application/octet-stream": [
                                         isTrackDesign ? ".td6" : ".park"
@@ -78,7 +78,7 @@ var EmscriptenDeps = {
                     id: "OpenRCT2-" + type,
                     types: [
                         {
-                            description: "Park File",
+                            description: "공원 세이브 파일",
                             accept: {
                                 "application/octet-stream": [
                                     ".park"
@@ -86,7 +86,7 @@ var EmscriptenDeps = {
                             }
                         },
                         {
-                            description: "Track Design File",
+                            description: "트랙 디자인 파일",
                             accept: {
                                 "application/octet-stream": [
                                     ".td6"
@@ -130,7 +130,7 @@ var EmscriptenDeps = {
     },
     ExportPersistentData: () => {
         if (!window.JSZip) {
-            alert("JSZip library not found. Aborting");
+            alert("ZIP 처리 라이브러리를 불러오지 못했습니다.");
             return;
         }
         const zipFolder = (folder) => {
@@ -170,7 +170,7 @@ var EmscriptenDeps = {
     },
     ImportPersistentData: () => {
         if (!window.JSZip) {
-            alert("JSZip library not found. Aborting");
+            alert("ZIP 처리 라이브러리를 불러오지 못했습니다.");
             return;
         }
         const clearDatabase = async(dir) => {
@@ -205,12 +205,12 @@ var EmscriptenDeps = {
         input.type = "file";
         input.accept = ".zip";
         input.addEventListener("change", async (e) => {
-            if (!confirm("Are you sure? This will wipe all current data.")) return;
+            if (!confirm("현재 저장 데이터를 모두 지우고 복원하시겠습니까?")) return;
             let zip = new JSZip();
             try {
                 zip = await zip.loadAsync(e.target.files[0]);
             } catch(e) {
-                alert("Not a zip file!");
+                alert("올바른 ZIP 파일이 아닙니다.");
                 return;
             }
             await clearDatabase("/persistent/");
@@ -224,7 +224,7 @@ var EmscriptenDeps = {
                     Module.FS.writeFile("/"+k, await entry.async("uint8array"));
                 }
             }
-            console.log("Database restored");
+            console.log("저장 데이터 복원 완료");
         })
         input.click();
     },
@@ -251,7 +251,7 @@ var EmscriptenDeps = {
                     success++;
                 } catch(e) {};
             }
-            alert("Successfully uploaded " + success + " files");
+            alert("세이브 파일 업로드 완료: " + success + "개");
         });
         input.click();
     },

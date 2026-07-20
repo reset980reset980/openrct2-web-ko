@@ -1,29 +1,66 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>OpenRCT2</title>
-        <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" crossorigin=anonymous></script>
-        <style>
-            * { padding: 0; margin: 0; }
-            canvas {
-                display: block;
-                margin: 0 auto;
-                position: fixed;
-                left: 0;
-                right: 0;
-                width: 100%;
-                height: 100%;
-            }
-        </style>
-        <script src="index.js"></script>
-    </head>
-    <body>
-        <p id="loadingWebassembly">Please wait... Loading webassembly</p>
-        <div id="beforeLoad" style="display:none;">
-            <p id="statusMsg">Please select your RCT2 assets (zip file):</p>
-            <input type="file" id="selectFile"></input>
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#14251b">
+  <title>OpenRCT2 웹 — 한국어</title>
+  <meta name="description" content="브라우저에서 자체 구동되는 OpenRCT2 WebAssembly 한국어 웹판">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="vendor/jszip.min.js"></script>
+  <script defer src="index.js"></script>
+</head>
+<body>
+  <main id="launcher" class="launcher" aria-live="polite">
+    <section class="hero-card">
+      <div class="brand-row">
+        <div class="logo" aria-hidden="true">🎢</div>
+        <div>
+          <span class="eyebrow">브라우저 자체 실행 · WEBASSEMBLY</span>
+          <h1>OpenRCT2 웹</h1>
+          <p class="subtitle">별도 설치 없이 브라우저에서 즐기는 한국어 OpenRCT2</p>
         </div>
-        <canvas id="canvas" style="display:none;"></canvas>
-    </body>
-</html>
+      </div>
 
+      <div id="loadingPanel" class="loading-panel">
+        <div class="spinner" aria-hidden="true"></div>
+        <div>
+          <strong id="loadingWebassembly">게임 엔진을 불러오는 중…</strong>
+          <p id="loadingDetail">첫 실행에는 WebAssembly와 공개 자산 다운로드가 필요합니다.</p>
+        </div>
+      </div>
+
+      <section id="beforeLoad" class="asset-panel" style="display:none;">
+        <div class="step">1</div>
+        <div class="asset-copy">
+          <h2>RCT2 원본 데이터 ZIP을 선택하세요</h2>
+          <p id="statusMsg">Steam 또는 GOG에서 구매한 RollerCoaster Tycoon 2 설치 폴더를 ZIP으로 압축해 선택하세요.</p>
+          <label class="file-button" for="selectFile">내 RCT2 ZIP 선택</label>
+          <input type="file" id="selectFile" accept=".zip,application/zip">
+          <details>
+            <summary>ZIP 만드는 방법</summary>
+            <ol>
+              <li>구매한 RCT2 설치 폴더를 엽니다.</li>
+              <li><code>Data/ch.dat</code> 파일이 있는지 확인합니다.</li>
+              <li>설치 폴더의 내용 전체를 ZIP으로 압축합니다.</li>
+              <li>위 버튼으로 ZIP을 선택합니다.</li>
+            </ol>
+          </details>
+        </div>
+      </section>
+
+      <div class="privacy-note">
+        <strong>🔒 원본 파일은 브라우저 안에서만 처리됩니다.</strong>
+        <p>선택한 RCT2 데이터는 Vercel이나 별도 서버로 업로드하지 않으며, 이 브라우저의 IndexedDB에 저장됩니다.</p>
+      </div>
+
+      <div class="legal-note">
+        <p>이 배포판에는 RollerCoaster Tycoon 2의 유료 원본 자산이 포함되지 않습니다. 플레이하려면 합법적으로 구매한 원본이 필요합니다.</p>
+        <p>OpenRCT2와 이 수정판은 <strong>GPL-3.0-or-later</strong>로 제공됩니다. <a href="https://github.com/OpenRCT2/OpenRCT2" target="_blank" rel="noreferrer">원본 소스</a> · <a href="https://github.com/reset980reset980/openrct2-web-ko/tree/web-ko-vercel" target="_blank" rel="noreferrer">한국어 웹판 수정 소스</a> · <a href="https://github.com/OpenRCT2/OpenRCT2/blob/develop/licence.txt" target="_blank" rel="noreferrer">라이선스</a></p>
+        <p>이 배포판에 대응하는 전체 소스는 위 공개 저장소에서 받을 수 있으며, 소스 요청은 <a href="https://github.com/reset980reset980/openrct2-web-ko/issues" target="_blank" rel="noreferrer">이슈 트래커</a>로 접수할 수 있습니다.</p>
+      </div>
+    </section>
+  </main>
+  <canvas id="canvas" tabindex="0" aria-label="OpenRCT2 게임 화면" style="display:none;"></canvas>
+</body>
+</html>
