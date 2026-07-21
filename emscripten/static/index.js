@@ -125,18 +125,14 @@ const MAX_EXTRACTED_BYTES = 1536 * 1024 * 1024;
                 {
                     if (zip !== null)
                     {
-                        if (zip.file("Data/ch.dat"))
+                        const archiveRoot = findRCT2ArchiveRoot(zip);
+                        if (archiveRoot)
                         {
                             document.getElementById("beforeLoad").remove();
-                            return "/RCT/";
-                        }
-                        else if (zip.file("RCT/Data/ch.dat"))
-                        {
-                            document.getElementById("beforeLoad").remove();
-                            return "/";
+                            return archiveRoot;
                         }
                     }
-                    document.getElementById("statusMsg").innerText = "올바른 RCT2 데이터가 아닙니다. ZIP 안에 Data/ch.dat 파일이 들어 있어야 합니다.";
+                    document.getElementById("statusMsg").innerText = "올바른 RCT2 데이터가 아닙니다. 설치 폴더 전체를 ZIP으로 압축했는지 확인해 주세요. (필수: Data/ch.dat)";
                     return false;
                 }))
                 {
@@ -230,22 +226,37 @@ async function extractZip(data, checkZip) {
     }
 
     let base = "/";
+    let stripPrefix = "";
     if (typeof checkZip === "function")
     {
         const cont = checkZip(contents);
         if (cont === false) return false;
-        base = cont;
+        if (typeof cont === "string")
+        {
+            base = cont;
+        }
+        else
+        {
+            base = cont.base;
+            stripPrefix = cont.stripPrefix || "";
+        }
     }
 
     const safeEntries = [];
     for (const key of entries)
     {
-        const normalised = key.replaceAll("\\", "/");
+        let normalised = key.replaceAll("\\", "/").replace(/^\.\//, "");
         const parts = normalised.split("/");
         if (normalised.startsWith("/") || normalised.includes("\0") || normalised.includes(":") || parts.includes(".."))
         {
             showZipError("안전하지 않은 ZIP 경로가 포함되어 있습니다.");
             return false;
+        }
+        if (stripPrefix)
+        {
+            if (!normalised.toLowerCase().startsWith(stripPrefix.toLowerCase())) continue;
+            normalised = normalised.slice(stripPrefix.length);
+            if (!normalised) continue;
         }
         safeEntries.push({ entry: contents.files[key], normalised });
     }
@@ -290,6 +301,18 @@ async function extractZip(data, checkZip) {
         }
     }
     return true;
+}
+
+function findRCT2ArchiveRoot(zip) {
+    const marker = Object.keys(zip.files).find(key => {
+        const path = key.replaceAll("\\", "/").replace(/^\.\//, "").toLowerCase();
+        return path === "data/ch.dat" || path.endsWith("/data/ch.dat");
+    });
+    if (!marker) return false;
+
+    const path = marker.replaceAll("\\", "/").replace(/^\.\//, "");
+    const markerOffset = path.toLowerCase().lastIndexOf("data/ch.dat");
+    return { base: "/RCT/", stripPrefix: path.slice(0, markerOffset) };
 }
 
 function showZipError(message) {

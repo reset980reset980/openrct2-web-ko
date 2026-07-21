@@ -13,6 +13,7 @@ function harness(files){
   const directories=[];
   const status={innerText:''};
   const context={
+    files,
     JSZip:class{async loadAsync(){return {files};}},
     Module:{FS:{mkdir(){},mkdirTree(path){directories.push(path);},writeFile(path,data){writes.push([path,data]);}}},
     document:{getElementById(){return status;}},
@@ -38,6 +39,20 @@ test('extractZip accepts a normal RCT2 data path',async()=>{
   assert.equal(ok,true);
   assert.deepEqual(writes.map(x=>x[0]),['/RCT/Data/ch.dat']);
   assert.deepEqual(directories,['/RCT/Data']);
+});
+
+test('extractZip finds and flattens a nested RCT2 install folder',async()=>{
+  const files={
+    'RollerCoaster Tycoon 2/Data/ch.dat':{dir:false,async:async()=>new Uint8Array([1])},
+    'RollerCoaster Tycoon 2/ObjData/ride.dat':{dir:false,async:async()=>new Uint8Array([2])},
+    '__MACOSX/metadata':{dir:false,async:async()=>new Uint8Array([3])},
+  };
+  const {context,writes}=harness(files);
+  const root=JSON.parse(await vm.runInContext(`JSON.stringify(findRCT2ArchiveRoot({files}))`,context));
+  assert.deepEqual(root,{base:'/RCT/',stripPrefix:'RollerCoaster Tycoon 2/'});
+  const ok=await vm.runInContext(`extractZip({size:3},()=>findRCT2ArchiveRoot({files}))`,context);
+  assert.equal(ok,true);
+  assert.deepEqual(writes.map(x=>x[0]),['/RCT/Data/ch.dat','/RCT/ObjData/ride.dat']);
 });
 
 test('extractZip rejects oversized compressed and extracted data',async()=>{
